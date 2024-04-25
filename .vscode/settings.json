@@ -2,6 +2,8 @@
     "files.associations": {
         "hw_config.h": "c",
         "sd_card.h": "c",
-        "spi.h": "c"
+        "spi.h": "c",
+        "stdlib.h": "c",
+        "cyw43_arch.h": "c"
     }
 }

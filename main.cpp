@@ -6,6 +6,7 @@
 #include "rtc.h"
 //
 #include "hw_config.h"
+#include "picow_ntp_client.h"
 #include <tusb.h>
 
 int main() {
@@ -17,6 +18,8 @@ int main() {
         sleep_ms(100);
     }
 
+    setupNTP();
+    
     // See FatFs - Generic FAT Filesystem Module, "Application Interface",
     // http://elm-chan.org/fsw/ff/00index_e.html
     sd_card_t *pSD = sd_get_by_num(0);
@@ -37,5 +40,9 @@ int main() {
     if (FR_OK != fr) printf("f_close error: %s (%d)\n", FRESULT_str(fr), fr);
     f_unmount(pSD->pcName);
 
-    for (;;);
+    while (1) {
+        checkNTP(); 
+    }
+
+    closeNTP();
 }

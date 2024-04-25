@@ -10,6 +10,7 @@ set(CMAKE_C_STANDARD 11)
 set(CMAKE_CXX_STANDARD 17)
 
 # Creates a pico-sdk subdirectory in our project for the libraries
+set(PICO_BOARD pico_w)
 pico_sdk_init()
 
 # Tell CMake where to find the executable source file
@@ -19,19 +20,22 @@ add_executable(${PROJECT_NAME}
 )
 
 # Tell CMake where to find other source code
-add_subdirectory(lib/no-OS-FatFS-SD-SPI-RPi-Pico/FatFs_SPI build)
+add_subdirectory(lib/no-OS-FatFS-SD-SPI-RPi-Pico/FatFs_SPI)
+add_subdirectory(lib/picow_ntp_client)
 
 # Create map/bin/hex/uf2 files
 pico_add_extra_outputs(${PROJECT_NAME})
 
 # Link to pico_stdlib (gpio, time, etc. functions)
 target_link_libraries(${PROJECT_NAME} 
+    pico_cyw43_arch_lwip_threadsafe_background
     pico_stdlib
     FatFs_SPI
+    picow_ntp_client
 )
 
 pico_set_program_name(${PROJECT_NAME} "seismograph")
-pico_set_program_version(${PROJECT_NAME} "0.1")
+pico_set_program_version(${PROJECT_NAME} "0.2")
 
 # Enable usb output, disable uart output
 pico_enable_stdio_usb(${PROJECT_NAME} 1)
