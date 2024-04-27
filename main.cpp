@@ -11,9 +11,14 @@
 // RTC Libraries
 #include "hardware/rtc.h"
 #include "pico/util/datetime.h"
+// Accelerometer
+#include "accelerometer.h"
+
+#include <math.h>
 
 int main() {
     stdio_init_all();
+    setupAccelerometer();
     time_init(); // Needed for FatFS library
 
     // Wait for USB connection
@@ -49,12 +54,21 @@ int main() {
     char *datetime_str = &datetime_buf[0];
 
     while (1) {
-        checkNTP(); 
+        checkNTP();
+
         if (rtc_get_datetime(&t) == true) {
             datetime_to_str(datetime_str, sizeof(datetime_buf), &t);
             printf("%s\n", datetime_str);
-            sleep_ms(2000);
         }
+
+        float readings[3];
+        readAccelerometer(readings);
+        float sum = 0;
+        for (int i = 0; i < 3; i++) sum += readings[i] * readings[i];
+        sum = sqrtf(sum);
+        printf("Sum of Gs is %5.3f\n", sum);
+        
+        sleep_ms(2000);
     }
 
     closeNTP();

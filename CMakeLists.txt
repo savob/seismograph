@@ -22,6 +22,7 @@ add_executable(${PROJECT_NAME}
 # Tell CMake where to find other source code
 add_subdirectory(lib/no-OS-FatFS-SD-SPI-RPi-Pico/FatFs_SPI)
 add_subdirectory(lib/picow_ntp_client)
+add_subdirectory(lib/accelerometer)
 
 # Create map/bin/hex/uf2 files
 pico_add_extra_outputs(${PROJECT_NAME})
@@ -33,6 +34,7 @@ target_link_libraries(${PROJECT_NAME}
     FatFs_SPI
     picow_ntp_client
     hardware_rtc
+    accelerometer
 )
 
 pico_set_program_name(${PROJECT_NAME} "seismograph")
