@@ -3,6 +3,9 @@
 
 #include "pico/stdlib.h"
 #include "pico/cyw43_arch.h"
+#include "pico/util/datetime.h"
+
+#include "hardware/rtc.h"
 
 #include "lwip/dns.h"
 #include "lwip/pbuf.h"
@@ -35,13 +38,27 @@ static void ntp_dns_found(const char *hostname, const ip_addr_t *ipaddr, void *a
 static void ntp_recv(void *arg, struct udp_pcb *pcb, struct pbuf *p, const ip_addr_t *addr, u16_t port);
 static NTP_T* ntp_init(void);
 
+const time_t TIME_OFFSET = -4 * 60 * 60; // Time offset to use to shift UTC to local time (seconds)
+
 // Called with results of operation
 static void ntp_result(NTP_T* state, int status, time_t *result) {
     if (status == 0 && result) {
+        *result = *result + TIME_OFFSET;
         struct tm *utc = gmtime(result);
         printf("Received NTP response: %02d/%02d/%04d %02d:%02d:%02d\n", utc->tm_mday, utc->tm_mon + 1, utc->tm_year + 1900,
                utc->tm_hour, utc->tm_min, utc->tm_sec);
-        
+
+        // Update RTC when successful
+        datetime_t temp;
+        temp.year = utc->tm_year + 1900;
+        temp.month = utc->tm_mon + 1;
+        temp.day = utc->tm_mday;
+        temp.hour = utc->tm_hour;
+        temp.min = utc->tm_min;
+        temp.sec = utc->tm_sec;
+        temp.dotw = utc->tm_wday;
+
+        rtc_set_datetime(&temp);
     }
 
     if (state->ntp_resend_alarm > 0) {
@@ -108,6 +125,8 @@ static void ntp_recv(void *arg, struct udp_pcb *pcb, struct pbuf *p, const ip_ad
 
 // Perform initialisation
 static NTP_T* ntp_init(void) {
+    rtc_init();
+
     NTP_T *state = (NTP_T*)calloc(1, sizeof(NTP_T));
     if (!state) {
         printf("Failed to allocate state\n");

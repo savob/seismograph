@@ -32,6 +32,7 @@ target_link_libraries(${PROJECT_NAME}
     pico_stdlib
     FatFs_SPI
     picow_ntp_client
+    hardware_rtc
 )
 
 pico_set_program_name(${PROJECT_NAME} "seismograph")
