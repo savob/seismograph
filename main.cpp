@@ -14,7 +14,6 @@
 // Accelerometer
 #include "accelerometer.h"
 
-#include <math.h>
 
 int main() {
     stdio_init_all();
@@ -62,11 +61,8 @@ int main() {
         }
 
         float readings[3];
-        readAccelerometer(readings);
-        float sum = 0;
-        for (int i = 0; i < 3; i++) sum += readings[i] * readings[i];
-        sum = sqrtf(sum);
-        printf("Sum of Gs is %5.3f\n", sum);
+        float sum = readAccelerometer(readings);
+        printf("Magnitude of acceleration is %5.3f G\n", sum);
         
         sleep_ms(2000);
     }

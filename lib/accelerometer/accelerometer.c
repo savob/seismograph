@@ -1,4 +1,6 @@
+#include <math.h>
 #include <stdio.h>
+
 #include "pico/stdlib.h"
 #include "hardware/gpio.h"
 #include "hardware/adc.h"
@@ -29,11 +31,13 @@ int setupAccelerometer() {
  * \brief Reads the G forces on each axes to an array
  * 
  * \param axes Location to record acceleration of each axis (X, Y, Z)
- * \return Non-zero if error
+ * \return Overall magnitude of accelerations
  */
-int readAccelerometer(float axes[]) {
+float readAccelerometer(float axes[]) {
     const float CONV_READ_TO_V = 3.3f / (1 << 12);
     const float CONV_V_TO_G = 1.0f / 0.430; // This is about 10% of supply rail
+
+    float sum = 0; // Sum of acceleration magnitudes
 
     for (int i = 0; i < 3; i++) {
         int channel = adc_get_selected_input();
@@ -42,8 +46,12 @@ int readAccelerometer(float axes[]) {
         // Need to offset from center range and convert
         axes[i] = (reading - (1 << 11)) * CONV_READ_TO_V * CONV_V_TO_G;
 
-        printf("Reading channel %d: %4d (%5.3f V, %5.3f G)\n", channel, reading, axes[i] / CONV_V_TO_G, axes[i] );
+        // Contribute to overall magnitude
+        sum += axes[i] * axes[i];
+
+        printf("Reading channel %d: %4d (%+6.3f V, %+6.3f G)\n", channel, reading, axes[i] / CONV_V_TO_G, axes[i] );
     }
 
-    return 0;
+    sum = sqrtf(sum);
+    return sum;
 }

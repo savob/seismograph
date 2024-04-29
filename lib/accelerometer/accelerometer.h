@@ -6,8 +6,7 @@ extern "C" {
 #endif
 
 int setupAccelerometer();
-int readAccelerometer(float axes[]);
-
+float readAccelerometer(float axes[]);
 
 #ifdef __cplusplus
 }
