@@ -45,7 +45,15 @@ int main() {
         sleep_ms(100);
     }
 
-    setupNTP();
+    // Wait until we get time from NTP is setup was good
+    if (setupNTP() == 0) {
+        datetime_t tempTime;
+        do {
+            checkNTP();
+            rtc_get_datetime(&tempTime);
+            sleep_ms(100);
+        } while (tempTime.year <= 2023);
+    }
     
     // See FatFs - Generic FAT Filesystem Module, "Application Interface",
     // http://elm-chan.org/fsw/ff/00index_e.html
