@@ -17,6 +17,8 @@ pico_sdk_init()
 add_executable(${PROJECT_NAME} 
     main.cpp
     hw_config.c
+    logging.c
+    logging.h
 )
 
 # Tell CMake where to find other source code

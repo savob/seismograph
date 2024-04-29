@@ -5,6 +5,15 @@
         "spi.h": "c",
         "stdlib.h": "c",
         "cyw43_arch.h": "c",
-        "stdio.h": "c"
+        "stdio.h": "c",
+        "array": "cpp",
+        "deque": "cpp",
+        "string": "cpp",
+        "unordered_map": "cpp",
+        "vector": "cpp",
+        "string_view": "cpp",
+        "initializer_list": "cpp",
+        "ranges": "cpp",
+        "rtc.h": "c"
     }
 }
