@@ -14,6 +14,26 @@
 // Accelerometer
 #include "accelerometer.h"
 
+const int32_t LOGGING_PERIOD_MS = 500; // Period between accelerometer logs
+
+bool loggingCallback(struct repeating_timer *t) {
+    datetime_t currentTime;
+    char datetime_buf[256];
+    char *datetime_str = &datetime_buf[0];
+
+    checkNTP();
+
+    if (rtc_get_datetime(&currentTime) == true) {
+        datetime_to_str(datetime_str, sizeof(datetime_buf), &currentTime);
+        printf("\n%s\n", datetime_str);
+    }
+
+    float readings[3];
+    float sum = readAccelerometer(readings);
+    printf("Magnitude of acceleration is %5.3f G\n", sum);
+
+    return true;
+}
 
 int main() {
     stdio_init_all();
@@ -43,29 +63,21 @@ int main() {
         printf("f_printf failed\n");
     }
 
+    // Setup periodic logging 
+    struct repeating_timer loggingTimer;
+    add_repeating_timer_ms(LOGGING_PERIOD_MS, loggingCallback, NULL, &loggingTimer);
+
+    // Wait for a bit
+    sleep_ms(20000);
+
+    cancel_repeating_timer(&loggingTimer);
+    
     fr = f_close(&fil);
     if (FR_OK != fr) printf("f_close error: %s (%d)\n", FRESULT_str(fr), fr);
     f_unmount(pSD->pcName);
 
-
-    datetime_t t;
-    char datetime_buf[256];
-    char *datetime_str = &datetime_buf[0];
-
-    while (1) {
-        checkNTP();
-
-        if (rtc_get_datetime(&t) == true) {
-            datetime_to_str(datetime_str, sizeof(datetime_buf), &t);
-            printf("%s\n", datetime_str);
-        }
-
-        float readings[3];
-        float sum = readAccelerometer(readings);
-        printf("Magnitude of acceleration is %5.3f G\n", sum);
-        
-        sleep_ms(2000);
-    }
-
     closeNTP();
+
+    printf("\n\nALL DONE. SHUTTING DOWN.");
+    sleep_ms(1000);
 }
